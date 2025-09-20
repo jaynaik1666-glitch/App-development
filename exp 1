@@ -1,0 +1,39 @@
+let users = []; // Initial empty data
+
+// CREATE
+function createUser(name, age) {
+    const id = Date.now(); // Unique ID based on timestamp
+    const user = { id, name, age };
+    users.push(user);
+    console.log("User created:", user);
+}
+
+// READ
+function readUsers() {
+    console.log("All users:");
+    users.forEach(user => {
+        console.log(`ID: ${user.id}, Name: ${user.name}, Age: ${user.age}`);
+    });
+}
+
+// UPDATE
+function updateUser(id, newData) {
+    const user = users.find(u => u.id === id);
+    if (user) {
+        Object.assign(user, newData);
+        console.log("User updated:", user);
+    } else {
+        console.log("User not found");
+    }
+}
+
+// DELETE
+function deleteUser(id) {
+    const index = users.findIndex(u => u.id === id);
+    if (index !== -1) {
+        const removedUser = users.splice(index, 1)[0];
+        console.log("User deleted:", removedUser);
+    } else {
+        console.log("User not found");
+    }
+}
