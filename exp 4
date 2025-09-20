@@ -1,0 +1,123 @@
+import 'package:flutter/material.dart';
+import 'package:math_expressions/math_expressions.dart';
+
+void main() {
+  runApp(CalculatorApp());
+}
+
+class CalculatorApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Calculator',
+      theme: ThemeData(
+        brightness: Brightness.dark,
+        primarySwatch: Colors.deepPurple,
+      ),
+      home: CalculatorPage(),
+      debugShowCheckedModeBanner: false,
+    );
+  }
+}
+
+class CalculatorPage extends StatefulWidget {
+  @override
+  _CalculatorPageState createState() => _CalculatorPageState();
+}
+
+class _CalculatorPageState extends State<CalculatorPage> {
+  String expression = '';
+  String result = '';
+
+  final List<String> buttons = [
+    '7', '8', '9', '÷',
+    '4', '5', '6', '×',
+    '1', '2', '3', '-',
+    '0', 'C', '=', '+',
+  ];
+
+  void buttonPressed(String buttonText) {
+    setState(() {
+      if (buttonText == 'C') {
+        expression = '';
+        result = '';
+      } else if (buttonText == '=') {
+        try {
+          String finalExpression = expression.replaceAll('×', '*').replaceAll('÷', '/');
+          Parser parser = Parser();
+          Expression exp = parser.parse(finalExpression);
+          ContextModel cm = ContextModel();
+          double eval = exp.evaluate(EvaluationType.REAL, cm);
+          result = eval.toString();
+        } catch (e) {
+          result = 'Error';
+        }
+      } else {
+        expression += buttonText;
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Flutter Calculator'),
+        centerTitle: true,
+      ),
+      body: Column(
+        children: <Widget>[
+          Expanded(
+            child: Container(
+              padding: EdgeInsets.all(24),
+              alignment: Alignment.bottomRight,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Text(expression,
+                      style: TextStyle(fontSize: 32, color: Colors.white70)),
+                  SizedBox(height: 10),
+                  Text(result,
+                      style: TextStyle(fontSize: 48, fontWeight: FontWeight.bold)),
+                ],
+              ),
+            ),
+          ),
+          Divider(color: Colors.white24),
+          Expanded(
+            flex: 2,
+            child: GridView.builder(
+              itemCount: buttons.length,
+              gridDelegate:
+                  SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 4),
+              itemBuilder: (context, index) {
+                return ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: isOperator(buttons[index])
+                        ? Colors.deepPurple
+                        : Colors.deepPurple.shade200,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(0)),
+                  ),
+                  child: Text(
+                    buttons[index],
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  onPressed: () => buttonPressed(buttons[index]),
+                );
+              },
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  bool isOperator(String x) {
+    return x == '+' || x == '-' || x == '×' || x == '÷' || x == '=';
+  }
+}
