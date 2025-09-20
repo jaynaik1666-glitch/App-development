@@ -1,0 +1,82 @@
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  FlatList,
+  StyleSheet,
+} from 'react-native';
+
+export default function App() {
+  const [task, setTask] = useState('');
+  const [tasks, setTasks] = useState([]);
+
+  const handleAddTask = () => {
+    if (task.trim() === '') return;
+
+    const newTask = {
+      id: Date.now().toString(),
+      text: task,
+      completed: false,
+    };
+
+    setTasks([newTask, ...tasks]);
+    setTask('');
+  };
+
+  const handleToggleComplete = (id) => {
+    setTasks((prevTasks) =>
+      prevTasks.map((item) =>
+        item.id === id ? { ...item, completed: !item.completed } : item
+      )
+    );
+  };
+
+  const handleDeleteTask = (id) => {
+    setTasks((prevTasks) => prevTasks.filter((item) => item.id !== id));
+  };
+
+  const renderItem = ({ item }) => (
+    <View style={styles.taskItem}>
+      <TouchableOpacity
+        onPress={() => handleToggleComplete(item.id)}
+        style={{ flex: 1 }}
+      >
+        <Text style={[styles.taskText, item.completed && styles.completed]}>
+          {item.text}
+        </Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => handleDeleteTask(item.id)}>
+        <Text style={styles.deleteButton}>❌</Text>
+      </TouchableOpacity>
+    </View>
+  );
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>📝 To-Do List</Text>
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={styles.input}
+          placeholder="Add new task"
+          value={task}
+          onChangeText={setTask}
+        />
+        <TouchableOpacity onPress={handleAddTask} style={styles.addButton}>
+          <Text style={styles.addButtonText}>＋</Text>
+        </TouchableOpacity>
+      </View>
+
+      <FlatList
+        data={tasks}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.id}
+        ListEmptyComponent={
+          <Text style={styles.emptyText}>No tasks yet.</Text>
+        }
+      />
+    </View>
+  );
+}
+
